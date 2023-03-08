@@ -17,10 +17,10 @@ import javax.persistence.Id;
 @Entity
 public class User implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 5L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private String id;
     private String username;
     private String password;
     private char gender;
@@ -29,7 +29,7 @@ public class User implements Serializable {
     public User() {
     }
     
-    public User(Long id, String username, String password, char gender, UserType type) {
+    public User(String id, String username, String password, char gender, UserType type) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -37,11 +37,11 @@ public class User implements Serializable {
         this.type = type;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
     
