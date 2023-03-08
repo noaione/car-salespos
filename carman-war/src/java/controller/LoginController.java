@@ -30,9 +30,27 @@ public class LoginController extends BaseController {
     }
     
     public String executeLogin() {
-        User found = userFacade.find(user.getUsername());
+        String username = user.getUsername();
+        String password = user.getPassword();
+        if (username == null) {
+            this.setErrorRedirectMessage("Please provide a username for login");
+            return this.createRedirect("errorpage");
+        }
+        if (username.isEmpty()) {
+            this.setErrorRedirectMessage("Please provide a username for login");
+            return this.createRedirect("errorpage");
+        }
+        if (password == null) {
+            this.setErrorRedirectMessage("Please provide a password for login");
+            return this.createRedirect("errorpage");
+        }
+        if (password.isEmpty()) {
+            this.setErrorRedirectMessage("Please provide a password for login");
+            return this.createRedirect("errorpage");
+        }
+        User found = userFacade.find(username);
         if (found != null) {
-            if (found.getPassword() == user.getPassword()) {
+            if (found.getPassword().equals(password)) {
                 this.setUserSession(found);
                 return this.createRedirect("home");
             } else {
