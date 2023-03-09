@@ -86,9 +86,6 @@ public class Register extends HttpServlet {
                 case "admin":
                     typeAct = UserType.MANAGER;
                     break;
-                case "sales":
-                    typeAct = UserType.SALESMAN;
-                    break;
                 default:
                     typeAct = UserType.CUSTOMER;
                     break;
