@@ -32,7 +32,7 @@ public class CarSalesFacade extends AbstractFacade<CarSales> {
     public List<CarSales> findAllForUser(String userId) {
         EntityManager em = getEntityManager();
         TypedQuery<CarSales> query = em.createQuery(
-                "SELECT cs FROM CarSales cs WHERE cs.user.id = :userId", CarSales.class);
+                "SELECT cs FROM CarSales cs WHERE cs.owner.id = :userId", CarSales.class);
         query.setParameter("userId", userId);
         return query.getResultList();
     }

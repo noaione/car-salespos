@@ -5,6 +5,6 @@
 --%>
 
 <a href="index.jsp">Home</a> | <a href="Buy">Buy</a> | 
-<a href="Sell">Sell</a> | <a href="purchases.jsp">Purchases</a> |
-<a href="sales.jsp">Sales</a> | <a href="profile.jsp">Profile</a> |
+<a href="Sell">Sell</a> | <a href="Purchases">Purchases</a> |
+<a href="Sales">Sales</a> | <a href="profile.jsp">Profile</a> |
 <a href="../Logout">Logout</a>

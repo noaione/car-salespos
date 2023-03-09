@@ -6,6 +6,7 @@ package controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.NumberFormat;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -43,11 +44,13 @@ public class Sell extends HttpServlet {
             out.println("<p>You have not sale any car yet!</p>");
             return;
         }
+        NumberFormat nf = NumberFormat.getNumberInstance();
         out.println("<table class=\"car-table\">");
         out.println("<thead>");
         out.println("<tr>");
         out.println("<th class=\"car-table\">Model</th>");
         out.println("<th class=\"car-table\">Price</th>");
+        out.println("<th class=\"car-table\">Buyer</th>");
         out.println("<th class=\"car-table\">Status</th>");
         out.println("<th class=\"car-table\">Action</th>");
         out.println("</tr>");
@@ -59,7 +62,12 @@ public class Sell extends HttpServlet {
             String action = contextPath + "/home/Sell";
             out.println("<tr>");
             out.println("<td class=\"car-table\">" + carModel.getName() + "</td>");
-            out.println("<td class=\"car-table\">" + carModel.getPrice() + "</td>");
+            out.println("<td class=\"car-table\">RM " + nf.format(carModel.getPrice()) + "</td>");
+            if (carSale.getOwner() != null) {
+                out.println("<td class=\"car-table\">" + carSale.getOwner().getUsername() + "</td>");
+            } else {
+                out.println("<td class=\"car-table\">None</td>");
+            }
             String carStatus = carSale.getStatus().name().toLowerCase();
             carStatus = carStatus.substring(0, 1).toUpperCase() + carStatus.substring(1);
             out.println("<td class=\"car-table\">" + carStatus + "</td>");
