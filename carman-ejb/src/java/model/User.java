@@ -17,7 +17,7 @@ import javax.persistence.Id;
 @Entity
 public class User implements Serializable {
 
-    private static final long serialVersionUID = 5L;
+    private static final long serialVersionUID = 6L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
@@ -106,9 +106,6 @@ public class User implements Serializable {
         return type == UserType.CUSTOMER;
     }
     
-    public Boolean isSalesman() {
-        return type == UserType.SALESMAN;
-    }
     
     public Boolean isManager() {
         return type == UserType.MANAGER;

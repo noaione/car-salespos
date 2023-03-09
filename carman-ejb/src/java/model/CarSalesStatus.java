@@ -8,7 +8,8 @@ package model;
  *
  * @author N4O
  */
-public enum UserType {
-    MANAGER,
-    CUSTOMER,
+public enum CarSalesStatus {
+    AVAILABLE,
+    BOOKED,
+    PAID,
 }
