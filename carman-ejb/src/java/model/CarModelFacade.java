@@ -26,21 +26,4 @@ public class CarModelFacade extends AbstractFacade<CarModel> {
     protected EntityManager getEntityManager() {
         return em;
     }
-    
-    @Override
-    public void create(CarModel carModel) {
-        if (carModel.getCarSales() == null) {
-            throw new IllegalStateException("Please assign seller before creating the carModel");
-        }
-        getEntityManager().persist(carModel);
-    }
-
-    public void create(CarModel carModel, User seller) {
-        try {
-            carModel.initSales(seller);
-        } catch (IllegalStateException ex) {
-            // no op
-        }
-        create(carModel);
-    }
 }

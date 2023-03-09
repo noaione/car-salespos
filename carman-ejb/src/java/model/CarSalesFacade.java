@@ -52,4 +52,29 @@ public class CarSalesFacade extends AbstractFacade<CarSales> {
     public List<CarSales> findAllForSeller(User user) {
         return findAllForSeller(user.getId());
     }
+    
+    public List<CarSales> findAllByStatus(CarSalesStatus status) {
+        EntityManager em = getEntityManager();
+        TypedQuery<CarSales> query = em.createQuery(
+                "SELECT m FROM CarSales m WHERE m.status = :status",
+                CarSales.class
+        );
+        query.setParameter("status", status);
+        return query.getResultList();
+    }
+    
+    public List<CarSales> findAllByStatusExceptUser(CarSalesStatus status, String userId) {
+        EntityManager em = getEntityManager();
+        TypedQuery<CarSales> query = em.createQuery(
+                "SELECT m FROM CarSales m WHERE m.status = :status AND m.sales.id != :userId",
+                CarSales.class
+        );
+        query.setParameter("status", status);
+        query.setParameter("userId", userId);
+        return query.getResultList();
+    }
+    
+    public List<CarSales> findAllByStatusExceptUser(CarSalesStatus status, User user) {
+        return findAllByStatusExceptUser(status, user.getId());
+    }
 }

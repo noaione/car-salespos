@@ -9,7 +9,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
 
 /**
  *
@@ -18,24 +17,20 @@ import javax.persistence.OneToOne;
 @Entity
 public class CarModel implements Serializable {
     
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
     private String name;
     private int price;
 
-    @OneToOne(mappedBy = "carModel")
-    private CarSales carSales;
-
     public CarModel() {
     }
 
-    public CarModel(String id, String name, int price, CarSales carSales) {
+    public CarModel(String id, String name, int price) {
         this.id = id;
         this.name = name;
         this.price = price;
-        this.carSales = carSales;
     }
 
     public String getName() {
@@ -52,14 +47,6 @@ public class CarModel implements Serializable {
 
     public void setPrice(int price) {
         this.price = price;
-    }
-
-    public CarSales getCarSales() {
-        return carSales;
-    }
-
-    public void setCarSales(CarSales carSales) {
-        this.carSales = carSales;
     }
 
     public String getId() {
@@ -96,13 +83,10 @@ public class CarModel implements Serializable {
     }
     
     public CarSales initSales(User seller) {
-        if (carSales != null) {
-            throw new IllegalStateException("A CarSales object already exists for this CarModel");
-        }
         CarSales sales = new CarSales();
         sales.setSales(seller);
         sales.setCarModel(this);
-        this.setCarSales(sales);
+        sales.setStatus(CarSalesStatus.AVAILABLE);
         return sales;
     }
 }
