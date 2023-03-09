@@ -4,7 +4,7 @@
     Author     : N4O
 --%>
 
-<a href="/home/index.jsp">Home</a> | <a href="/home/buy.jsp">Buy</a> | 
-<a href="/home/sell.jsp">Sell</a> | <a href="/home/purchases.jsp">Purchases</a> |
-<a href="/home/sales.jsp">Sales</a> | <a href="/home/profile.jsp">Profile</a> |
-<a href="/Logout">Logout</a>
+<a href="index.jsp">Home</a> | <a href="Buy">Buy</a> | 
+<a href="Sell">Sell</a> | <a href="purchases.jsp">Purchases</a> |
+<a href="sales.jsp">Sales</a> | <a href="profile.jsp">Profile</a> |
+<a href="../Logout">Logout</a>

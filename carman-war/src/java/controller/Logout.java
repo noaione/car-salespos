@@ -35,10 +35,6 @@ public class Logout extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        if (request.getMethod().equals("GET")) {
-            response.sendError(405, "Only POST Method are allowed in here");
-            return;
-        }
         response.setContentType("text/html;charset=UTF-8");
         try {
             request.getSession().invalidate();

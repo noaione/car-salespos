@@ -8,6 +8,22 @@
         <filter-name>SessionCheckFilter</filter-name>
         <url-pattern>/home/*</url-pattern>
     </filter-mapping>
+    <servlet>
+        <servlet-name>Buy</servlet-name>
+        <servlet-class>controller.Buy</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>Sell</servlet-name>
+        <servlet-class>controller.Sell</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Buy</servlet-name>
+        <url-pattern>/home/Buy</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Sell</servlet-name>
+        <url-pattern>/home/Sell</url-pattern>
+    </servlet-mapping>
     <session-config>
         <session-timeout>
             30
