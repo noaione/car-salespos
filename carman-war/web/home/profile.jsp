@@ -59,11 +59,11 @@
                 <input type="text" name="username" class="form-input bg-gray-700 text-white rounded-md" placeholder="New username" />
             </div>
             <div class="flex flex-col gap-1 align-middle justify-start">
-                <div class="flex"><label>Password</label></div>
+                <div class="flex"><label>Current Password</label></div>
                 <input type="password" name="oldpassword" class="form-input bg-gray-700 text-white rounded-md" placeholder="Current password" />
             </div>
             <div class="flex flex-col gap-1 align-middle justify-start">
-                <div class="flex"><label>Password</label></div>
+                <div class="flex"><label>New Password</label></div>
                 <input type="password" name="newpassword" class="form-input bg-gray-700 text-white rounded-md" placeholder="New password" />
             </div>
             <div class="flex flex-col gap-1 align-middle justify-start">

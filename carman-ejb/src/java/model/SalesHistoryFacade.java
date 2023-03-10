@@ -44,7 +44,7 @@ public class SalesHistoryFacade extends AbstractFacade<SalesHistory> {
     public List<SalesHistory> findAllForSeller(String userId) {
         EntityManager em = getEntityManager();
         TypedQuery<SalesHistory> query = em.createQuery(
-                "SELECT sh FROM SalesHistory sh WHERE sh.carSales.sales = :userId", SalesHistory.class);
+                "SELECT sh FROM SalesHistory sh WHERE sh.carSales.sales.id = :userId", SalesHistory.class);
         query.setParameter("userId", userId);
         return query.getResultList();
     }
