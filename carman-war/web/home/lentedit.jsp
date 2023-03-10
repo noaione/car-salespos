@@ -22,7 +22,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Lent a car</title>
+        <title>Lent a car - Edit</title>
         <jsp:include page="/WEB-INF/tailwind.jsp" />
     </head>
     <body class="bg-gray-800 text-white mx-2 my-2">

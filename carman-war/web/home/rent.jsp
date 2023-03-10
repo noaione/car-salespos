@@ -10,6 +10,10 @@
     User user = (User)request.getSession().getAttribute("userCtx");
     if (user == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
+    } else {
+        if (user.isManager()) {
+            response.sendRedirect(request.getContextPath() + "/home/index.jsp");
+        }
     }
 %>
 

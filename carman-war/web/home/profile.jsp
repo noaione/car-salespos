@@ -19,7 +19,7 @@
 <html lang="en">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Home Page</title>
+        <title>Profile Page</title>
         <jsp:include page="/WEB-INF/tailwind.jsp" />
     </head>
     <body class="bg-gray-800 text-white mx-2 my-2">
