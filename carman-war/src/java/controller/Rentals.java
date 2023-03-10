@@ -196,6 +196,11 @@ public class Rentals extends HttpServlet {
         if (userCtx == null) {
             response.sendRedirect(request.getContextPath() + "/login.jsp");
         } else {
+            if (userCtx.isManager()) {
+                System.out.println("redirecting...");
+                response.sendRedirect(request.getContextPath() + "/home/index.jsp");
+                return;
+            }
             response.setContentType("text/html;charset=UTF-8");
             try (PrintWriter out = response.getWriter()) {
                 request.getRequestDispatcher("/home/rentals.jsp").include(request, response);
