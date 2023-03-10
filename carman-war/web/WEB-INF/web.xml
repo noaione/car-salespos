@@ -52,6 +52,14 @@
         <servlet-name>RentalsReview</servlet-name>
         <servlet-class>controller.RentalsReview</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>Users</servlet-name>
+        <servlet-class>controller.Users</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>Reports</servlet-name>
+        <servlet-class>controller.Reports</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Sales</servlet-name>
         <url-pattern>/home/Sales</url-pattern>
@@ -95,6 +103,14 @@
     <servlet-mapping>
         <servlet-name>RentalsReview</servlet-name>
         <url-pattern>/home/Rentals/Review</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Users</servlet-name>
+        <url-pattern>/home/Users</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Reports</servlet-name>
+        <url-pattern>/home/Reports</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
