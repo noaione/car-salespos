@@ -20,7 +20,7 @@ import javax.persistence.CascadeType;
 @Entity
 public class CarSales implements Serializable {
 
-    private static final long serialVersionUID = 6L;
+    private static final long serialVersionUID = 7L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
@@ -34,19 +34,15 @@ public class CarSales implements Serializable {
     private User sales;
     private CarSalesStatus status;
 
-    private String salesReview;
-    private String customerReview;
-
     public CarSales() {
     }
 
-    public CarSales(String id, CarModel carModel, User owner, User sales, CarSalesStatus status, String salesReview) {
+    public CarSales(String id, CarModel carModel, User owner, User sales, CarSalesStatus status) {
         this.id = id;
         this.carModel = carModel;
         this.owner = owner;
         this.sales = sales;
         this.status = status;
-        this.salesReview = salesReview;
     }
 
     public CarModel getCarModel() {
@@ -80,14 +76,6 @@ public class CarSales implements Serializable {
     public void setStatus(CarSalesStatus status) {
         this.status = status;
     }
-    
-    public String getSalesReview() {
-        return salesReview;
-    }
-
-    public void setSalesReview(String salesReview) {
-        this.salesReview = salesReview;
-    }
 
     public String getId() {
         return id;
@@ -97,14 +85,6 @@ public class CarSales implements Serializable {
         this.id = id;
     }
     
-    public String getCustomerReview() {
-        return customerReview;
-    }
-
-    public void setCustomerReview(String customerReview) {
-        this.customerReview = customerReview;
-    }
-
     @Override
     public int hashCode() {
         int hash = 0;
