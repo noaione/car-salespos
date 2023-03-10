@@ -16,6 +16,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import model.User;
 import model.UserFacade;
 import model.UserType;
@@ -25,8 +26,8 @@ import model.UserType;
  * @author N4O
  */
 
-@WebServlet(name = "Register", urlPatterns = {"/Register"})
-public class Register extends HttpServlet {
+@WebServlet(name = "ProfileEdit", urlPatterns = {"/home/Profile"})
+public class ProfileEdit extends HttpServlet {
 
     @EJB
     private UserFacade userFacade;
@@ -44,7 +45,7 @@ public class Register extends HttpServlet {
         }
         return null;
     }
-    
+
     private String validateUsername(String username) {
         username = username.trim();
         Pattern ptr = Pattern.compile("\\s");
@@ -89,74 +90,92 @@ public class Register extends HttpServlet {
         }
         System.out.println(request.getPathInfo());
         response.setContentType("text/html;charset=UTF-8");
+        String dispatcher = "/home/profile.jsp";
         try (PrintWriter out = response.getWriter()) {
-            String utypeRaw = request.getParameter("utype");
-            if (utypeRaw == null) utypeRaw = "customer";
-            UserType typeAct = UserType.CUSTOMER;
-            switch (utypeRaw.toLowerCase()) {
-                case "admin":
-                    typeAct = UserType.MANAGER;
-                    break;
-                default:
-                    typeAct = UserType.CUSTOMER;
-                    break;
+            String uuid = request.getParameter("uuid");
+            if (uuid == null) {
+                request.getRequestDispatcher(dispatcher).include(request, response);
+                makeError(out, "Unknown user ID provided!");
+                return;
             }
-            String dispatcher = "register.jsp";
-            if (typeAct == UserType.MANAGER) {
-                dispatcher = "registeradmin.jsp";
+            User user = userFacade.find(uuid);
+            if (user == null) {
+                request.getRequestDispatcher(dispatcher).include(request, response);
+                makeError(out, "Unknown user ID provided!");
+                return;
             }
             String username = request.getParameter("username");
             if (username == null) {
                 username = "";
             }
-            if (username.trim().isEmpty()) {
-                request.getRequestDispatcher(dispatcher).include(request, response);
-                makeError(out, "Username cannot be empty!");
-                return;
-            }
-            String usernameErr = validateUsername(username);
-            if (usernameErr != null) {
-                request.getRequestDispatcher(dispatcher).include(request, response);
-                makeError(out, usernameErr);
-                return;
-            }
-            String password = request.getParameter("password");
-            String genderStr = request.getParameter("gender");
-            if (genderStr == null) {
-                request.getRequestDispatcher(dispatcher).include(request, response);
-                makeError(out, "Gender cannot be empty!");
-                return;
-            }
-            if (genderStr.trim().isEmpty()) {
-                request.getRequestDispatcher(dispatcher).include(request, response);
-                makeError(out, "Gender cannot be empty!");
-                return;
-            }
-            char gender = genderStr.charAt(0);
-            if (gender != 'M' && gender != 'F' && gender != 'O') {
-                request.getRequestDispatcher(dispatcher).include(request, response);
-                makeError(out, "Gender must be either 'M', 'F', or 'O'");
-                return;
-            }
-            try {
-                String passwdErr = checkPassword(password);
-                if (passwdErr != null) {
-                    throw new InvalidPasswordError(passwdErr);
-                }
+            Boolean anyChangeMade = false;
+            if (!username.trim().isEmpty()) {
                 User found = userFacade.findByUsername(username);
                 if (found != null) {
-                    throw new ExistingUsernameError(username);
+                    request.getRequestDispatcher(dispatcher).include(request, response);
+                    makeError(out, "Username already registered!");
+                    return;
+                }
+                String usernameErr = validateUsername(username);
+                if (usernameErr != null) {
+                    request.getRequestDispatcher(dispatcher).include(request, response);
+                    makeError(out, usernameErr);
+                    return;
+                }
+                user.setUsername(username);
+                anyChangeMade = true;
+            }
+            String genderStr = request.getParameter("gender");
+            if (genderStr == null) {
+                genderStr = "";
+            }
+            if (!genderStr.isEmpty()) {
+                char gender = genderStr.charAt(0);
+                if (!genderStr.isEmpty() && (gender != 'M' && gender != 'F' && gender != 'O')) {
+                    request.getRequestDispatcher(dispatcher).include(request, response);
+                    makeError(out, "Gender must be either 'M', 'F', or 'O'");
+                    return;
+                }
+                user.setGender(gender);
+                anyChangeMade = true;
+            }
+            try {
+                String password = request.getParameter("newpassword");
+                if (password != null) {
+                    String oldPassword = request.getParameter("oldpassword");
+                    if (oldPassword == null) {
+                        throw new InvalidPasswordError("You must enter the old password when setting a new one!");
+                    }
+                    if (!oldPassword.equals(password)) {
+                        throw new InvalidPasswordError("The old password is not the same as the one in database!");
+                    }
+                    String passwdErr = checkPassword(password);
+                    if (passwdErr != null) {
+                        throw new InvalidPasswordError(passwdErr);
+                    }
+                    user.setPassword(password);
+                    anyChangeMade = true;
                 }
                 
-                User newUser = new User();
-                newUser.setUsername(username);
-                newUser.setPassword(password);
-                newUser.setGender(gender);
-                newUser.setType(typeAct);
-                userFacade.create(newUser);
+                if (!anyChangeMade) {
+                    request.getRequestDispatcher(dispatcher).include(request, response);
+                    makeError(out, "There is no change applied!");
+                    return;
+                }
+                
+                userFacade.edit(user);
+                // done, set the new request
+                HttpSession sesi = request.getSession(false);
+                if (sesi == null) {
+                    // bruh moment
+                    response.sendRedirect(request.getContextPath() + "/login.jsp");
+                    return;
+                }
+                
+                sesi.setAttribute("userCtx", user);
 
                 request.getRequestDispatcher(dispatcher).include(request, response);
-                makeError(out, "Registered! You can try logging in now!", "text-green-400");
+                makeError(out, "User information is now updated!", "text-emerald-400");
             } catch (ExistingUsernameError unfe) {
                 request.getRequestDispatcher(dispatcher).include(request, response);
                 makeError(out, "Sorry, the username provided has already been registered!");

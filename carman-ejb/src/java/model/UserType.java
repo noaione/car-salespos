@@ -12,5 +12,10 @@ public enum UserType {
     // The administrator
     MANAGER,
     // Both the seller/loaner and also someone that can rent a car.
-    CUSTOMER,
+    CUSTOMER;
+    
+    public String asName() {
+        String name = this.name().toLowerCase();
+        return name.substring(0, 1).toUpperCase() + name.substring(1);
+    }
 }

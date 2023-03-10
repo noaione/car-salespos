@@ -15,7 +15,7 @@
     <span>|</span>
     <a href="<%= request.getContextPath() %>/home/Sales" class="nav-link">Sales</a>
     <span>|</span>
-    <a href="<%= request.getContextPath() %>/home/Profile" class="nav-link">Profile</a>
+    <a href="<%= request.getContextPath() %>/home/profile.jsp" class="nav-link">Profile</a>
     <span>|</span>
     <a href="<%= request.getContextPath() %>/Logout" class="nav-link">Logout</a>
 </div>
