@@ -172,11 +172,6 @@ public class Rentals extends HttpServlet {
                         }
                         carSale.setStatus(CarSalesStatus.PAID);
                         carSalesFacade.edit(carSale);
-                        SalesHistory shist = new SalesHistory();
-                        shist.setCarSales(carSale);
-                        shist.setLoaner(carSale.getSales());
-                        shist.setTimestamp();
-                        salesHistoryFacade.create(shist);
                         writeSalesTable(out, request.getContextPath(), userCtx);
                         makeError(out, "Car rented and paid fully!", "text-emerald-400");
                     } else if (postAction.trim().equals("cancel-car")) {
@@ -199,6 +194,12 @@ public class Rentals extends HttpServlet {
                         carSale.setStatus(CarSalesStatus.AVAILABLE);
                         carSale.setOwner(null);
                         carSalesFacade.edit(carSale);
+                        SalesHistory shist = new SalesHistory();
+                        shist.setCarSales(carSale);
+                        // set the loaner to this user.
+                        shist.setLoaner(userCtx);
+                        shist.setTimestamp();
+                        salesHistoryFacade.create(shist);
                         writeSalesTable(out, request.getContextPath(), userCtx);
                         makeError(out, "You returned the rented car!", "text-emerald-400");
                     } else {
