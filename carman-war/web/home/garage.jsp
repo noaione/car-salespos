@@ -19,32 +19,33 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Garage cars</title>
-        <style>
-            .car-table {
-                border: 1px solid black;
-                border-collapse: collapse;
-                border-spacing: 1rem;
-            }
-        </style>
+        <jsp:include page="/WEB-INF/tailwind.jsp" />
     </head>
-    <body>
-        <nav>
-        <%
-            if (user.isManager()) {
-        %>
-            <jsp:include page="/WEB-INF/navmanager.jsp" />
-        <%
-            } else if (user.isUser()) {
-        %>
-            <jsp:include page="/WEB-INF/navuser.jsp" />
-        <%
-            }
-        %>
-        </nav>
-        <br/>
-        <nav>
-            <a href="#approval-pending">Approve pending car</a>
-        </nav>
-        <h1 id="available">Garage</h1>
+    <body class="bg-gray-800 text-white mx-2 my-2">
+        <div class="flex flex-col mx-auto items-center">
+            <nav class="mt-4">
+            <%
+                System.out.println("User type " + user.getType().name());
+                if (user == null) {
+                    response.sendRedirect(request.getContextPath() + "/login.jsp");
+                } else {
+            %>
+            <%
+                if (user.isManager()) {
+            %>
+                <jsp:include page="/WEB-INF/navmanager.jsp" />
+            <%
+                } else if (user.isUser()) {
+            %>
+                <jsp:include page="/WEB-INF/navuser.jsp" />
+            <%
+                }
+            %>
+            <%  }
+            %>
+            </nav>
+            <h1 id="garages" class="text-center text-xl font-semibold mt-2">Garages</h1>
+            <p class="mt-2"><a class="nav-link" href="#pending">Pending Approval</a></p>
+        </div>
     </body>
 </html>

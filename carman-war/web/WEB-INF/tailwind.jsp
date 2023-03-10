@@ -32,5 +32,8 @@
         .table-btn-warn {
             @apply px-2 py-1 rounded-md bg-orange-500 text-white hover:opacity-90 cursor-pointer transition;
         }
+        .no-mod {
+            @apply text-center mt-2 text-gray-300 font-light;
+        }
     }
 </style>
