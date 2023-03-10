@@ -20,7 +20,7 @@ import javax.persistence.CascadeType;
 @Entity
 public class CarSales implements Serializable {
 
-    private static final long serialVersionUID = 5L;
+    private static final long serialVersionUID = 6L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
@@ -35,6 +35,7 @@ public class CarSales implements Serializable {
     private CarSalesStatus status;
 
     private String salesReview;
+    private String customerReview;
 
     public CarSales() {
     }
@@ -94,6 +95,14 @@ public class CarSales implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+    
+    public String getCustomerReview() {
+        return customerReview;
+    }
+
+    public void setCustomerReview(String customerReview) {
+        this.customerReview = customerReview;
     }
 
     @Override
