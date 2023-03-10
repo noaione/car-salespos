@@ -9,7 +9,12 @@ package model;
  * @author N4O
  */
 public enum CarSalesStatus {
+    // Approved, and ready for rental
     AVAILABLE,
+    // Boooked by someone
     BOOKED,
+    // Paid, and currently being loaned.
     PAID,
+    // Added, wait for approval by admin
+    PENDING_APPROVAL,
 }

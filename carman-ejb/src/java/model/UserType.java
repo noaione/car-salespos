@@ -9,6 +9,8 @@ package model;
  * @author N4O
  */
 public enum UserType {
+    // The administrator
     MANAGER,
+    // Both the seller/loaner and also someone that can rent a car.
     CUSTOMER,
 }

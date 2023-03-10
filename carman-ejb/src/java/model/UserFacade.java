@@ -46,4 +46,19 @@ public class UserFacade extends AbstractFacade<User> {
             return null;
         }
     }
+    
+    public User findByType(UserType type) {
+        EntityManager em = getEntityManager();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<User> cq = cb.createQuery(User.class);
+        Root<User> from = cq.from(User.class);
+        cq.select(from);
+        cq.where(cb.equal(from.get(User_.type), type));
+        TypedQuery<User> typed = em.createQuery(cq);
+        try {
+            return typed.getSingleResult();
+        } catch (final NoResultException nre) {
+            return null;
+        }
+    }
 }

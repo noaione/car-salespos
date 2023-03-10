@@ -86,7 +86,7 @@ public class CarModel implements Serializable {
         CarSales sales = new CarSales();
         sales.setSales(seller);
         sales.setCarModel(this);
-        sales.setStatus(CarSalesStatus.AVAILABLE);
+        sales.setStatus(CarSalesStatus.PENDING_APPROVAL);
         return sales;
     }
 }
