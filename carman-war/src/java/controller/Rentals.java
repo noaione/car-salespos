@@ -68,7 +68,7 @@ public class Rentals extends HttpServlet {
             }
         }
         if (carSales.size() < 1) {
-            out.println("<p class=\"text-center\">You haven't rented any car yet!</p>");
+            out.println("<p class=\"no-mod\">You haven't rented any car yet!</p>");
             return;
         }
         out.println("<hr class=\"border-gray-500 my-4\" />");

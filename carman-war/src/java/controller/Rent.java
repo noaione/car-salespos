@@ -55,7 +55,7 @@ public class Rent extends HttpServlet {
                 CarSalesStatus.AVAILABLE, userCtx
         );
         if (carSales.size() < 1) {
-            out.println("<p class=\"text-center\">There is no available car to rent!</p>");
+            out.println("<p class=\"no-mod\">There is no available car to rent!</p>");
             return;
         }
         NumberFormat nf = NumberFormat.getNumberInstance();

@@ -58,7 +58,7 @@ public class Lent extends HttpServlet {
         List<CarSales> carSales = carSalesFacade.findAllForSeller(userCtx);
         out.println("<h3 class=\"text-center text-xl font-semibold mt-4\">Loaned car</h3>");
         if (carSales.size() < 1) {
-            out.println("<p class=\"text-center\">You have not provided any car yet!</p>");
+            out.println("<p class=\"no-mod\">You have not provided any car yet!</p>");
             return;
         }
         NumberFormat nf = NumberFormat.getNumberInstance();

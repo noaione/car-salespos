@@ -61,12 +61,12 @@ public class Sales extends HttpServlet {
                 request.getRequestDispatcher("/home/sales.jsp").include(request, response);
                 List<CarSales> carSalesExist = carSalesFacade.findAllForSeller(userCtx);
                 if (carSalesExist.isEmpty()) {
-                    out.println("<p class=\"text-center\">You haven't made any car listing yet!</p>");
+                    out.println("<p class=\"no-mod\">You haven't made any car listing yet!</p>");
                     return;
                 }
                 List<SalesHistory> carSalesBooked = salesHistoryFacade.findAllForUser(userCtx);
                 if (carSalesBooked.isEmpty()) {
-                    out.println("<p class=\"text-center\">No one has rented your car listing yet!</p>");
+                    out.println("<p class=\"no-mod\">No one has rented your car listing yet!</p>");
                     return;
                 }
                 
