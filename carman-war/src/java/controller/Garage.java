@@ -20,6 +20,8 @@ import model.CarModelFacade;
 import model.CarSales;
 import model.CarSalesFacade;
 import model.CarSalesStatus;
+import model.ReviewData;
+import model.ReviewDataFacade;
 import model.SalesHistory;
 import model.SalesHistoryFacade;
 import model.User;
@@ -41,7 +43,9 @@ public class Garage extends HttpServlet {
     private CarModelFacade carModelFacade;
     @EJB
     private SalesHistoryFacade salesHistoryFacade;
-    
+    @EJB
+    private ReviewDataFacade reviewDataFacade;
+
     private void makeError(PrintWriter out, String errText, String colorama) {
         // <div class="flex flex-col mx-auto items-center mt-2">
         //     <p class="text-red-400">An error has occurred</p>
@@ -220,6 +224,10 @@ public class Garage extends HttpServlet {
                         for (int i = 0; i < allSales.size(); i++) {
                             SalesHistory sales = allSales.get(i);
                             if (sales.getCarSales().getId().equals(carSale.getId())) {
+                                ReviewData rd = reviewDataFacade.findForHistory(sales);
+                                if (rd != null) {
+                                    reviewDataFacade.remove(rd);
+                                }
                                 salesHistoryFacade.remove(sales);
                             }
                         }

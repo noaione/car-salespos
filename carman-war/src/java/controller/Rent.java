@@ -78,7 +78,6 @@ public class Rent extends HttpServlet {
             }
             CarModel carModel = carSale.getCarModel();
             String action = contextPath + "/home/Rent";
-            out.println("<form id=\"" + carSale.getId() + "\" action=\"" + action + "\" method=\"POST\">");
             out.println("<tr>");
             out.println("<td class=\"table-b\">" + carModel.getName() + "</td>");
             out.println("<td class=\"table-b\">RM " + nf.format(carModel.getPrice()) + "</td>");
@@ -92,7 +91,6 @@ public class Rent extends HttpServlet {
             out.println("</div>");
             out.println("</td>");
             out.println("</tr>");
-            out.println("</form>");
         }
         out.println("</tbody>");
         out.println("</table>");

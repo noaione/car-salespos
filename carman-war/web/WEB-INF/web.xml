@@ -48,6 +48,10 @@
         <servlet-name>ProfileEdit</servlet-name>
         <servlet-class>controller.ProfileEdit</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>RentalsReview</servlet-name>
+        <servlet-class>controller.RentalsReview</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Sales</servlet-name>
         <url-pattern>/home/Sales</url-pattern>
@@ -87,6 +91,10 @@
     <servlet-mapping>
         <servlet-name>ProfileEdit</servlet-name>
         <url-pattern>/home/Profile</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RentalsReview</servlet-name>
+        <url-pattern>/home/Rentals/Review</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

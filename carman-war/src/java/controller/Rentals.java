@@ -6,9 +6,12 @@ package controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,6 +23,7 @@ import model.CarModelFacade;
 import model.CarSales;
 import model.CarSalesFacade;
 import model.CarSalesStatus;
+import model.ReviewDataFacade;
 import model.SalesHistory;
 import model.SalesHistoryFacade;
 import model.User;
@@ -32,6 +36,9 @@ import model.UserFacade;
 
 @WebServlet(name = "Rentals", urlPatterns = {"/home/Rentals"})
 public class Rentals extends HttpServlet {
+
+    @EJB
+    private ReviewDataFacade reviewDataFacade;
 
     @EJB
     private UserFacade userFacade;
@@ -55,7 +62,7 @@ public class Rentals extends HttpServlet {
         makeError(out, errText, "text-red-400");
     }
 
-    private void writeSalesTable(PrintWriter out, String contextPath, User userCtx) {
+    private void writeActiveSales(PrintWriter out, String contextPath, User userCtx) {
         List<CarSales> carSalesBooked = carSalesFacade.findAllForUser(userCtx);
         ArrayList<CarSales> carSales = new ArrayList<CarSales>();
         for (int i = 0; i < carSalesBooked.size(); i++) {
@@ -67,8 +74,9 @@ public class Rentals extends HttpServlet {
                 carSales.add(carSale);
             }
         }
+        out.println("<h2 class=\"text-xl font-semibold mt-2 text-center\">Active</p>");
         if (carSales.size() < 1) {
-            out.println("<p class=\"no-mod\">You haven't rented any car yet!</p>");
+            out.println("<p class=\"no-mod\">There is no active rental right now!</p>");
             return;
         }
         out.println("<hr class=\"border-gray-500 my-4\" />");
@@ -116,10 +124,61 @@ public class Rentals extends HttpServlet {
             out.println("</div>");
             out.println("</td>");
             out.println("</tr>");
-            out.println("</form>");
         }
         out.println("</tbody>");
         out.println("</table>");
+    }
+    
+    private void writeHistoryTable(PrintWriter out, String contextPath, User userCtx) {
+        List<SalesHistory> historySales = salesHistoryFacade.findAllForUser(userCtx);
+        out.println("<h2 class=\"text-xl font-semibold mt-2 text-center\">History</p>");
+        if (historySales.size() < 1) {
+            out.println("<p class=\"no-mod\">You haven't rented any car yet!</p>");
+            return;
+        }
+        out.println("<hr class=\"border-gray-500 my-4\" />");
+        out.println("<table class=\"table-sales\">");
+        out.println("<thead>");
+        out.println("<tr>");
+        out.println("<th class=\"table-h\">Model</th>");
+        out.println("<th class=\"table-h\">Price</th>");
+        out.println("<th class=\"table-h\">Return Time</th>");
+        out.println("<th class=\"table-h\">Seller</th>");
+        out.println("<th class=\"table-h\">Action</th>");
+        out.println("</tr>");
+        out.println("</thead>");
+        out.println("<tbody class=\"bg-slate-900\">");
+        for (int i = 0; i < historySales.size(); i++) {
+            SalesHistory histSale = historySales.get(i);
+            CarSales carSale = histSale.getCarSales();
+            CarModel carModel = carSale.getCarModel();
+            String action = contextPath + "/home/Rentals/Review";
+            out.println("<tr>");
+            out.println("<td class=\"table-b\">" + carModel.getName() + "</td>");
+            out.println("<td class=\"table-b\">" + carModel.getPrice() + "</td>");
+            long timestamp = histSale.getTimestamp();
+            Instant ts = Instant.ofEpochSecond(timestamp);
+            ZonedDateTime mytTimestamp = ts.atOffset(ZoneOffset.ofHours(8)).toZonedDateTime();
+            DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
+            out.println("<td class=\"table-b\">" + mytTimestamp.format(formatter) + "</td>");
+            out.println("<td class=\"table-b\">" + carSale.getSales().getUsername() + "</td>");
+            out.println("<td class=\"table-b\">");
+            out.println("<div class=\"flex flex-col items-center gap-1 justify-center\">");
+            out.println("<form id=\"act-review-" + carSale.getId() + "\" action=\"" + action + "\" method=\"GET\" class=\"flex\">"
+                + "<input type=\"hidden\" name=\"id\" value=\"" + histSale.getId() + "\">"
+                + "<input type=\"submit\"value=\"Review\" class=\"table-btn-warn\">"
+                + "</form>");
+            out.println("</div>");
+            out.println("</td>");
+            out.println("</tr>");
+        }
+        out.println("</tbody>");
+        out.println("</table>");
+    }
+    
+    private void writeSalesTable(PrintWriter out, String contextPath, User userCtx) {
+        writeActiveSales(out, contextPath, userCtx);
+        writeHistoryTable(out, contextPath, userCtx);
     }
 
     /**
