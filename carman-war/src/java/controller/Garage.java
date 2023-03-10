@@ -27,8 +27,8 @@ import model.UserFacade;
  * @author N4O
  */
 
-@WebServlet(name = "Buy", urlPatterns = {"/home/Buy"})
-public class Buy extends HttpServlet {
+@WebServlet(name = "Garage", urlPatterns = {"/home/Garage"})
+public class Garage extends HttpServlet {
 
     @EJB
     private UserFacade userFacade;
@@ -37,10 +37,42 @@ public class Buy extends HttpServlet {
     @EJB
     private CarModelFacade carModelFacade;
     
-    private void writeSalesTable(PrintWriter out, String contextPath, User userCtx) {
-        List<CarSales> carSales = carSalesFacade.findAllByStatusExceptUser(
-                CarSalesStatus.AVAILABLE, userCtx
-        );
+    private void writeSalesTable(PrintWriter out) {
+        List<CarSales> carSales = carSalesFacade.findAll();
+        if (carSales.size() < 1) {
+            out.println("<p>There is no available car to buy!</p>");
+            return;
+        }
+        NumberFormat nf = NumberFormat.getNumberInstance();
+        out.println("<table class=\"car-table\">");
+        out.println("<thead>");
+        out.println("<tr>");
+        out.println("<th class=\"car-table\">Model</th>");
+        out.println("<th class=\"car-table\">Price</th>");
+        out.println("<th class=\"car-table\">Seller</th>");
+        out.println("<th class=\"car-table\">Status</th>");
+        out.println("</tr>");
+        out.println("</thead>");
+        out.println("<tbody>");
+        for (int i = 0; i < carSales.size(); i++) {
+            CarSales carSale = carSales.get(i);
+            CarModel carModel = carSale.getCarModel();
+            out.println("<tr>");
+            out.println("<td class=\"car-table\">" + carModel.getName() + "</td>");
+            out.println("<td class=\"car-table\">RM " + nf.format(carModel.getPrice()) + "</td>");
+            out.println("<td class=\"car-table\">" + carSale.getSales().getUsername() + "</td>");
+            String carStatus = carSale.getStatus().name().toLowerCase();
+            carStatus = carStatus.substring(0, 1).toUpperCase() + carStatus.substring(1);
+            carStatus = carStatus.replace('_', ' ');
+            out.println("<td class=\"car-table\">" + carStatus + "</td>");
+            out.println("</tr>");
+        }
+        out.println("</tbody>");
+        out.println("</table>");
+    }
+
+    private void writePendingCar(PrintWriter out, String contextPath, User userCtx) {
+        List<CarSales> carSales = carSalesFacade.findAllByStatus(CarSalesStatus.PENDING_APPROVAL);
         if (carSales.size() < 1) {
             out.println("<p>There is no available car to buy!</p>");
             return;
@@ -58,28 +90,36 @@ public class Buy extends HttpServlet {
         out.println("<tbody>");
         for (int i = 0; i < carSales.size(); i++) {
             CarSales carSale = carSales.get(i);
-            if (carSale.getSales().getId().equals(userCtx.getId())) {
-                // do not sale to the same user because that's dumb, lmao.
-                continue;
-            }
             CarModel carModel = carSale.getCarModel();
-            String action = contextPath + "/home/Buy";
-            out.println("<form id=\"" + carSale.getId() + "\" action=\"" + action + "\" method=\"POST\">");
+            String action = contextPath + "/home/Lent";
             out.println("<tr>");
             out.println("<td class=\"car-table\">" + carModel.getName() + "</td>");
             out.println("<td class=\"car-table\">RM " + nf.format(carModel.getPrice()) + "</td>");
             out.println("<td class=\"car-table\">" + carSale.getSales().getUsername() + "</td>");
-            out.println("<td class=\"car-table\">"
+            if (carSale.getStatus() != CarSalesStatus.PENDING_APPROVAL) {
+                // no action can be done, it's been sold :)
+                out.println("<td class=\"car-table\">No action</td>");
+            } else {
+                // action available
+                out.println("<td class=\"car-table\">");
+                out.println("<form id=\"" + carSale.getId() + "\" action=\"" + action + "\" method=\"POST\">"
                     + "<input type=\"hidden\" name=\"salesid\" value=\"" + carSale.getId() + "\">"
-                    + "<input type=\"submit\"value=\"Book\">"
-                    + "</td>");
+                    + "<input type=\"hidden\" name=\"garage-action\" value=\"approve-car\">"
+                    + "<input type=\"submit\"value=\"Approve\">"
+                    + "</form>");
+                out.println("<form id=\"" + carSale.getId() + "\" action=\"" + action + "\" method=\"POST\">"
+                    + "<input type=\"hidden\" name=\"salesid\" value=\"" + carSale.getId() + "\">"
+                    + "<input type=\"hidden\" name=\"garage-action\" value=\"reject-car\">"
+                    + "<input type=\"submit\"value=\"Reject\">"
+                    + "</form>");
+                out.println("</td>");
+            }
             out.println("</tr>");
-            out.println("</form>");
         }
         out.println("</tbody>");
         out.println("</table>");
     }
-
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -97,11 +137,11 @@ public class Buy extends HttpServlet {
         } else {
             response.setContentType("text/html;charset=UTF-8");
             try (PrintWriter out = response.getWriter()) {
-                request.getRequestDispatcher("/home/buy.jsp").include(request, response);
+                request.getRequestDispatcher("/home/garage.jsp").include(request, response);
                 if (request.getMethod().equals("GET")) {
-                    writeSalesTable(out, request.getContextPath(), userCtx);
+                    writeSalesTable(out);
                 } else if (request.getMethod().equals("POST")) {
-                    writeSalesTable(out, request.getContextPath(), userCtx);
+                    writeSalesTable(out);
                     String salesId = request.getParameter("salesid");
                     if (salesId.trim().isEmpty()) {
                         out.println("<br><br><p>No sales ID has been provided!</p>");

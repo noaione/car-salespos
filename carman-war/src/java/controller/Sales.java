@@ -7,7 +7,7 @@ package controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.NumberFormat;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -19,7 +19,8 @@ import model.CarModel;
 import model.CarModelFacade;
 import model.CarSales;
 import model.CarSalesFacade;
-import model.CarSalesStatus;
+import model.SalesHistory;
+import model.SalesHistoryFacade;
 import model.User;
 import model.UserFacade;
 
@@ -37,64 +38,9 @@ public class Sales extends HttpServlet {
     private CarSalesFacade carSalesFacade;
     @EJB
     private CarModelFacade carModelFacade;
+    @EJB
+    private SalesHistoryFacade salesHistoryFacade;
     
-    private void writeSalesTable(PrintWriter out, String contextPath, User userCtx) {
-        List<CarSales> carSalesBooked = carSalesFacade.findAllForUser(userCtx);
-        ArrayList<CarSales> carSales = new ArrayList<CarSales>();
-        for (int i = 0; i < carSalesBooked.size(); i++) {
-            CarSales carSale = carSalesBooked.get(i);
-            if (carSale.getStatus() != CarSalesStatus.AVAILABLE) {
-                carSales.add(carSale);
-            }
-        }
-        if (carSales.size() < 1) {
-            out.println("<p>You haven't bought any car yet!</p>");
-            return;
-        }
-        out.println("<table class=\"car-table\">");
-        out.println("<thead>");
-        out.println("<tr>");
-        out.println("<th class=\"car-table\">Model</th>");
-        out.println("<th class=\"car-table\">Price</th>");
-        out.println("<th class=\"car-table\">Seller</th>");
-        out.println("<th class=\"car-table\">Action</th>");
-        out.println("</tr>");
-        out.println("</thead>");
-        out.println("<tbody>");
-        for (int i = 0; i < carSales.size(); i++) {
-            CarSales carSale = carSales.get(i);
-            CarModel carModel = carSale.getCarModel();
-            String action = contextPath + "/home/Purchases";
-            out.println("<form id=\"" + carSale.getId() + "\" action=\"" + action + "\" method=\"POST\">");
-            out.println("<tr>");
-            out.println("<td class=\"car-table\">" + carModel.getName() + "</td>");
-            out.println("<td class=\"car-table\">" + carModel.getPrice() + "</td>");
-            out.println("<td class=\"car-table\">" + carSale.getSales().getUsername() + "</td>");
-            out.println("<td class=\"car-table\">");
-            if (carSale.getStatus() == CarSalesStatus.BOOKED) {
-                // 
-                out.println("<form id=\"" + carSale.getId() + "\" action=\"" + action + "\" method=\"POST\">"
-                    + "<input type=\"hidden\" name=\"salesid\" value=\"" + carSale.getId() + "\">"
-                    + "<input type=\"hidden\" name=\"purchase-action\" value=\"purchase-car\">"
-                    + "<input type=\"submit\"value=\"Purchase\">"
-                    + "</form>");
-                out.println("<form id=\"" + carSale.getId() + "\" action=\"" + action + "\" method=\"POST\">"
-                    + "<input type=\"hidden\" name=\"salesid\" value=\"" + carSale.getId() + "\">"
-                    + "<input type=\"hidden\" name=\"purchase-action\" value=\"cancel-car\">"
-                    + "<input type=\"submit\"value=\"Cancel\">"
-                    + "</form>");
-            } else if (carSale.getStatus() == CarSalesStatus.PAID) {
-                // action available
-                out.println("No action");
-            }
-            out.println("</td>");
-            out.println("</tr>");
-            out.println("</form>");
-        }
-        out.println("</tbody>");
-        out.println("</table>");
-    }
-
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -113,47 +59,82 @@ public class Sales extends HttpServlet {
             response.setContentType("text/html;charset=UTF-8");
             try (PrintWriter out = response.getWriter()) {
                 request.getRequestDispatcher("/home/sales.jsp").include(request, response);
-                List<CarSales> carSalesBooked = carSalesFacade.findAllForSeller(userCtx);
+                List<CarSales> carSalesExist = carSalesFacade.findAllForSeller(userCtx);
+                if (carSalesExist.isEmpty()) {
+                    out.println("<p class=\"text-center\">You haven't made any car listing yet!</p>");
+                    return;
+                }
+                List<SalesHistory> carSalesBooked = salesHistoryFacade.findAllForUser(userCtx);
                 if (carSalesBooked.isEmpty()) {
-                    out.println("<p>You haven't sold any car yet!</p>");
+                    out.println("<p class=\"text-center\">No one has rented your car listing yet!</p>");
                     return;
                 }
                 
-                long overallSales = 0L; // paid only
-                long expectedSales = 0L; // paid + booked
-                long waitingSales = 0L; // booked only
+                long overallSales = 0L;
+                HashMap<CarModel, Integer> carUsages = new HashMap<CarModel, Integer>();
                 for (int i = 0; i < carSalesBooked.size(); i++) {
-                    CarSales carSale = carSalesBooked.get(i);
-                    int price = carSale.getCarModel().getPrice();
-                    if (carSale.getStatus() == CarSalesStatus.PAID) {
-                        overallSales += price;
-                        expectedSales += price;
+                    SalesHistory carSale = carSalesBooked.get(i);
+                    int price = carSale.getCarSales().getCarModel().getPrice();
+                    overallSales += price;
+                    CarModel car = carSale.getCarSales().getCarModel();
+                    if (carUsages.containsKey(car)) {
+                        carUsages.put(car, carUsages.get(car) + 1);
+                    } else {
+                        carUsages.put(car, 1);
                     }
-                    if (carSale.getStatus() == CarSalesStatus.BOOKED) {
-                        expectedSales += price;
-                        waitingSales += price;
+                }
+                for (int i = 0; i < carSalesExist.size(); i++) {
+                    CarSales carSale = carSalesExist.get(i);
+                    CarModel car = carSale.getCarModel();
+                    if (!carUsages.containsKey(car)) {
+                        carUsages.put(car, 0);
                     }
                 }
                 
+                int maxCarCount = 0;
+                CarModel mostFreqCar = null;
+                for (HashMap.Entry<CarModel, Integer> entry : carUsages.entrySet()) {
+                    int count = entry.getValue();
+                    if (count > maxCarCount) {
+                        maxCarCount = count;
+                        mostFreqCar = entry.getKey();
+                    }
+                }
+
                 NumberFormat nf = NumberFormat.getNumberInstance();
-                String fmtOverall = nf.format(overallSales);
-                String fmtExpected = nf.format(expectedSales);
-                String fmtWaiting = nf.format(waitingSales);
+                String fmtOverallSales = nf.format(overallSales);
                 
-                out.println("<div class\"flex flex-col\">");
-                    out.println("<h3>Overall</h3>");
+                out.println("<div class\"flex flex-col gap-1\">");
+                    out.println("<h3 class=\"text-lg font-semibold\">Overall Sales</h3>");
                     out.println("<div class=\"flex flex-row\">");
-                        out.println("<p><strong>Total sales:</strong>&nbsp;RM&nbsp;</p>");
-                        out.println("<p>" + fmtOverall + "</p>");
+                        out.println("<p class=\"font-light\">");
+                            out.println("<span class=\"font-bold\">Total sales:</span>&nbsp;RM&nbsp;" + fmtOverallSales);
+                        out.println("</p>");
                     out.println("</div>");
+                    if (maxCarCount > 0) {
                     out.println("<div class=\"flex flex-row\">");
-                        out.println("<p><strong>Expected total:</strong>&nbsp;RM&nbsp;</p>");
-                        out.println("<p>" + fmtExpected + "</p>");
+                        out.println("<p class=\"font-light\">");
+                        String usageForm = (maxCarCount > 1) ? "usages" : "usage";
+                            out.println("<span class=\"font-bold\">Most used car:</span>&nbsp;" + mostFreqCar.getName() + "&nbsp;<span class=\"font-bold\">(" + maxCarCount + " " + usageForm + ")</span>");
+                        out.println("</p>");
                     out.println("</div>");
+                    }
+                out.println("</div>");
+                out.println("<div class\"flex flex-col gap-1\">");
+                    out.println("<h3 class=\"text-lg font-semibold mt-4\">Individual Sales</h3>");
+                for (HashMap.Entry<CarModel, Integer> entry : carUsages.entrySet()) {
+                    int count = entry.getValue();
+                    int price = entry.getKey().getPrice();
+                    int totalCurrentSale = price * count;
+                    String fmtTotalCurrentSale = nf.format(totalCurrentSale);
+                    String usageForm = (count > 1) ? "usages" : "usage";
+
                     out.println("<div class=\"flex flex-row\">");
-                        out.println("<p><strong>Waiting payment:</strong>&nbsp;RM&nbsp;</p>");
-                        out.println("<p>" + fmtWaiting + "</p>");
+                        out.println("<p class=\"font-light before:content-['•_']\">");
+                            out.println("<span class=\"font-bold\">" + entry.getKey().getName() + "</span>:&nbsp;" + count + " " + usageForm + " (RM&nbsp;" + fmtTotalCurrentSale + ")");
+                        out.println("</p>");
                     out.println("</div>");
+                }
                 out.println("</div>");
             }
         }

@@ -6,9 +6,8 @@ package controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
+import java.text.NumberFormat;
 import java.util.List;
-import java.util.Locale;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -28,8 +27,8 @@ import model.UserFacade;
  * @author N4O
  */
 
-@WebServlet(name = "Purchases", urlPatterns = {"/home/Purchases"})
-public class Purchases extends HttpServlet {
+@WebServlet(name = "Rent", urlPatterns = {"/home/Rent"})
+public class Rent extends HttpServlet {
 
     @EJB
     private UserFacade userFacade;
@@ -37,56 +36,60 @@ public class Purchases extends HttpServlet {
     private CarSalesFacade carSalesFacade;
     @EJB
     private CarModelFacade carModelFacade;
+
+    private void makeError(PrintWriter out, String errText, String colorama) {
+        // <div class="flex flex-col mx-auto items-center mt-2">
+        //     <p class="text-red-400">An error has occurred</p>
+        // </div>
+        out.println("<div class=\"flex flex-col mx-auto items-center mt-4\">");
+            out.println("<p class=\"" + colorama + "\">" + errText + "</p>");
+        out.println("</div>");
+    }
+    
+    private void makeError(PrintWriter out, String errText) {
+        makeError(out, errText, "text-red-400");
+    }
     
     private void writeSalesTable(PrintWriter out, String contextPath, User userCtx) {
-        List<CarSales> carSalesBooked = carSalesFacade.findAllForUser(userCtx);
-        ArrayList<CarSales> carSales = new ArrayList<CarSales>();
-        for (int i = 0; i < carSalesBooked.size(); i++) {
-            CarSales carSale = carSalesBooked.get(i);
-            if (carSale.getStatus() != CarSalesStatus.AVAILABLE) {
-                carSales.add(carSale);
-            }
-        }
+        List<CarSales> carSales = carSalesFacade.findAllByStatusExceptUser(
+                CarSalesStatus.AVAILABLE, userCtx
+        );
         if (carSales.size() < 1) {
-            out.println("<p>You haven't bought any car yet!</p>");
+            out.println("<p class=\"text-center\">There is no available car to rent!</p>");
             return;
         }
-        out.println("<table class=\"car-table\">");
+        NumberFormat nf = NumberFormat.getNumberInstance();
+        out.println("<hr class=\"border-gray-500 my-4\" />");
+        out.println("<table class=\"table-sales\">");
         out.println("<thead>");
         out.println("<tr>");
-        out.println("<th class=\"car-table\">Model</th>");
-        out.println("<th class=\"car-table\">Price</th>");
-        out.println("<th class=\"car-table\">Seller</th>");
-        out.println("<th class=\"car-table\">Action</th>");
+        out.println("<th class=\"table-h\">Model</th>");
+        out.println("<th class=\"table-h\">Price</th>");
+        out.println("<th class=\"table-h\">Seller</th>");
+        out.println("<th class=\"table-h\">Action</th>");
         out.println("</tr>");
         out.println("</thead>");
-        out.println("<tbody>");
+        out.println("<tbody class=\"bg-slate-900\">");
         for (int i = 0; i < carSales.size(); i++) {
             CarSales carSale = carSales.get(i);
+            if (carSale.getSales().getId().equals(userCtx.getId())) {
+                // do not sale to the same user because that's dumb, lmao.
+                continue;
+            }
             CarModel carModel = carSale.getCarModel();
-            String action = contextPath + "/home/Purchases";
+            String action = contextPath + "/home/Rent";
             out.println("<form id=\"" + carSale.getId() + "\" action=\"" + action + "\" method=\"POST\">");
             out.println("<tr>");
-            out.println("<td class=\"car-table\">" + carModel.getName() + "</td>");
-            out.println("<td class=\"car-table\">" + carModel.getPrice() + "</td>");
-            out.println("<td class=\"car-table\">" + carSale.getSales().getUsername() + "</td>");
-            out.println("<td class=\"car-table\">");
-            if (carSale.getStatus() == CarSalesStatus.BOOKED) {
-                // 
-                out.println("<form id=\"" + carSale.getId() + "\" action=\"" + action + "\" method=\"POST\">"
-                    + "<input type=\"hidden\" name=\"salesid\" value=\"" + carSale.getId() + "\">"
-                    + "<input type=\"hidden\" name=\"purchase-action\" value=\"purchase-car\">"
-                    + "<input type=\"submit\"value=\"Purchase\">"
-                    + "</form>");
-                out.println("<form id=\"" + carSale.getId() + "\" action=\"" + action + "\" method=\"POST\">"
-                    + "<input type=\"hidden\" name=\"salesid\" value=\"" + carSale.getId() + "\">"
-                    + "<input type=\"hidden\" name=\"purchase-action\" value=\"cancel-car\">"
-                    + "<input type=\"submit\"value=\"Cancel\">"
-                    + "</form>");
-            } else if (carSale.getStatus() == CarSalesStatus.PAID) {
-                // action available
-                out.println("No action");
-            }
+            out.println("<td class=\"table-b\">" + carModel.getName() + "</td>");
+            out.println("<td class=\"table-b\">RM " + nf.format(carModel.getPrice()) + "</td>");
+            out.println("<td class=\"table-b\">" + carSale.getSales().getUsername() + "</td>");
+            out.println("<td class=\"table-b\">");
+            out.println("<div class=\"flex flex-col items-center gap-1 justify-center\">");
+            out.println("<form id=\"act-book-" + carSale.getId() + "\" action=\"" + action + "\" method=\"POST\" class=\"flex\">"
+                + "<input type=\"hidden\" name=\"salesid\" value=\"" + carSale.getId() + "\">"
+                + "<input type=\"submit\" value=\"Book\" class=\"table-btn-green\">"
+                + "</form>");
+            out.println("</div>");
             out.println("</td>");
             out.println("</tr>");
             out.println("</form>");
@@ -112,49 +115,37 @@ public class Purchases extends HttpServlet {
         } else {
             response.setContentType("text/html;charset=UTF-8");
             try (PrintWriter out = response.getWriter()) {
-                request.getRequestDispatcher("/home/purchases.jsp").include(request, response);
+                request.getRequestDispatcher("/home/rent.jsp").include(request, response);
                 if (request.getMethod().equals("GET")) {
                     writeSalesTable(out, request.getContextPath(), userCtx);
                 } else if (request.getMethod().equals("POST")) {
-                    String postAction = request.getParameter("purchase-action");
                     String salesId = request.getParameter("salesid");
-                    if (postAction == null) {
-                        postAction = "";
-                    }
                     if (salesId.trim().isEmpty()) {
                         writeSalesTable(out, request.getContextPath(), userCtx);
-                        out.println("<br><br><p>No sales ID has been provided!</p>");
+                        makeError(out, "No sales ID has been provided!");
                         return;
                     }
                     CarSales carSale = carSalesFacade.find(salesId);
                     if (carSale == null) {
                         writeSalesTable(out, request.getContextPath(), userCtx);
-                        out.println("<br><br><p>Unknown sales ID has been provided!</p>");
+                        makeError(out, "Unknown sales ID has been provided!");
                         return;
                     }
-                    if (carSale.getStatus() != CarSalesStatus.BOOKED) {
+                    if (carSale.getStatus() != CarSalesStatus.AVAILABLE) {
                         writeSalesTable(out, request.getContextPath(), userCtx);
-                        out.println("<br><br><p>The car you selected are not booked!</p>");
+                        makeError(out, "The car you selected has been booked by someone else!");
                         return;
                     }
-                    if (!carSale.getOwner().getId().equals(userCtx.getId())) {
-                        writeSalesTable(out, request.getContextPath(), userCtx);
-                        out.println("<br><br><p>You are not the purchaser for this car!</p>");
-                    }
-                    if (postAction.trim().equals("purchase-car")) {
-                        carSale.setStatus(CarSalesStatus.PAID);
+                    carSale.setStatus(CarSalesStatus.BOOKED);
+                    carSale.setOwner(userCtx);
+                    try {
                         carSalesFacade.edit(carSale);
                         writeSalesTable(out, request.getContextPath(), userCtx);
-                        out.println("<br><br><p>Car purchased fully!</p>");
-                    } else if (postAction.trim().equals("cancel-car")) {
-                        carSale.setStatus(CarSalesStatus.AVAILABLE);
-                        carSale.setOwner(null);
-                        carSalesFacade.edit(carSale);
+                        makeError(out, "Car has been booked, please proceed to Rentals tab!", "text-emerald-400");
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                         writeSalesTable(out, request.getContextPath(), userCtx);
-                        out.println("<br><br><p>You cancelled your car purchase!!</p>");
-                    } else {
-                        writeSalesTable(out, request.getContextPath(), userCtx);
-                        out.println("<br><br><p>Unknown action has been found?!</p>");
+                        makeError(out, "An internal server error has occured, please contact Admin!");
                     }
                 }
             }

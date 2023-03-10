@@ -1,5 +1,5 @@
 <%-- 
-    Document   : purchases
+    Document   : buy
     Created on : Mar 9, 2023, 9:57:57 AM
     Author     : N4O
 --%>
@@ -10,10 +10,6 @@
     User user = (User)request.getSession().getAttribute("userCtx");
     if (user == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
-    } else {
-        if (user.isManager()) {
-            response.sendRedirect(request.getContextPath() + "/home/index.jsp");
-        }
     }
 %>
 
@@ -22,8 +18,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Purchases Page</title>
-        <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+        <title>Garage cars</title>
         <style>
             .car-table {
                 border: 1px solid black;
@@ -46,6 +41,10 @@
             }
         %>
         </nav>
-        <h1>Your Purchases</h1>
+        <br/>
+        <nav>
+            <a href="#approval-pending">Approve pending car</a>
+        </nav>
+        <h1 id="available">Garage</h1>
     </body>
 </html>

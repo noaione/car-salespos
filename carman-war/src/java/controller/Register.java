@@ -43,6 +43,19 @@ public class Register extends HttpServlet {
         return null;
     }
     
+    private void makeError(PrintWriter out, String errText, String colorama) {
+        // <div class="flex flex-col mx-auto items-center mt-2">
+        //     <p class="text-red-400">An error has occurred</p>
+        // </div>
+        out.println("<div class=\"flex flex-col mx-auto items-center mt-2\">");
+            out.println("<p class=\"" + colorama + "\">" + errText + "</p>");
+        out.println("</div>");
+    }
+    
+    private void makeError(PrintWriter out, String errText) {
+        makeError(out, errText, "text-red-400");
+    }
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -58,27 +71,9 @@ public class Register extends HttpServlet {
             response.sendError(405, "Only POST Method are allowed in here");
             return;
         }
+        System.out.println(request.getPathInfo());
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
-            String username = request.getParameter("username");
-            if (username.trim().isEmpty()) {
-                request.getRequestDispatcher("register.jsp").include(request, response);
-                out.println("<br><br><br> Username cannot be empty!");
-                return;
-            }
-            String password = request.getParameter("password");
-            String genderStr = request.getParameter("gender");
-            if (genderStr.trim().isEmpty()) {
-                request.getRequestDispatcher("register.jsp").include(request, response);
-                out.println("<br><br><br> Gender cannot be empty!");
-                return;
-            }
-            char gender = genderStr.charAt(0);
-            if (gender != 'M' && gender != 'F' && gender != 'O') {
-                request.getRequestDispatcher("register.jsp").include(request, response);
-                out.println("<br><br><br>Gender must be either 'M', 'F', or 'O");
-                return;
-            }
             String utypeRaw = request.getParameter("utype");
             if (utypeRaw == null) utypeRaw = "customer";
             UserType typeAct = UserType.CUSTOMER;
@@ -89,6 +84,37 @@ public class Register extends HttpServlet {
                 default:
                     typeAct = UserType.CUSTOMER;
                     break;
+            }
+            String dispatcher = "register.jsp";
+            if (typeAct == UserType.MANAGER) {
+                dispatcher = "registeradmin.jsp";
+            }
+            String username = request.getParameter("username");
+            if (username == null) {
+                username = "";
+            }
+            if (username.trim().isEmpty()) {
+                request.getRequestDispatcher(dispatcher).include(request, response);
+                makeError(out, "Username cannot be empty!");
+                return;
+            }
+            String password = request.getParameter("password");
+            String genderStr = request.getParameter("gender");
+            if (genderStr == null) {
+                request.getRequestDispatcher(dispatcher).include(request, response);
+                makeError(out, "Gender cannot be empty!");
+                return;
+            }
+            if (genderStr.trim().isEmpty()) {
+                request.getRequestDispatcher(dispatcher).include(request, response);
+                makeError(out, "Gender cannot be empty!");
+                return;
+            }
+            char gender = genderStr.charAt(0);
+            if (gender != 'M' && gender != 'F' && gender != 'O') {
+                request.getRequestDispatcher(dispatcher).include(request, response);
+                makeError(out, "Gender must be either 'M', 'F', or 'O'");
+                return;
             }
             try {
                 String passwdErr = checkPassword(password);
@@ -107,14 +133,14 @@ public class Register extends HttpServlet {
                 newUser.setType(typeAct);
                 userFacade.create(newUser);
 
-                request.getRequestDispatcher("register.jsp").include(request, response);
-                out.println("<br>Registered! You can try logging in now!");
+                request.getRequestDispatcher(dispatcher).include(request, response);
+                makeError(out, "Registered! You can try logging in now!", "text-green-400");
             } catch (ExistingUsernameError unfe) {
-                request.getRequestDispatcher("register.jsp").include(request, response);
-                out.println("<br><br><br>Sorry, the username provided has already been registered!");
+                request.getRequestDispatcher(dispatcher).include(request, response);
+                makeError(out, "Sorry, the username provided has already been registered!");
             } catch (InvalidPasswordError pwe) {
-                request.getRequestDispatcher("register.jsp").include(request, response);
-                out.println("<br><br><br>Sorry, " + pwe.getAccountId());
+                request.getRequestDispatcher(dispatcher).include(request, response);
+                makeError(out, "Sorry, "  + pwe.getAccountId());
             }
         }
     }

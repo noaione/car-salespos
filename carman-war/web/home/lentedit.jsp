@@ -1,5 +1,5 @@
 <%-- 
-    Document   : sales
+    Document   : lentedit
     Created on : Mar 9, 2023, 9:57:57 AM
     Author     : N4O
 --%>
@@ -22,7 +22,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Sales reports</title>
+        <title>Lent a car</title>
         <jsp:include page="/WEB-INF/tailwind.jsp" />
     </head>
     <body class="bg-gray-800 text-white mx-2 my-2">
@@ -48,7 +48,7 @@
             <%  }
             %>
             </nav>
-            <h1 class="text-center text-xl font-semibold mt-2">Your Rental Car Sales</h1>
+            <h1 class="text-center text-xl font-semibold mt-2">Lend a car?</h1>
         </div>
     </body>
 </html>

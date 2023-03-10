@@ -4,6 +4,10 @@
     Author     : N4O
 --%>
 
-<a href="/home/index.jsp">Home</a> | <a href="/home/staffing.jsp">Staff Info</a> | 
-<a href="/home/garage.jsp">Garage</a> | <a href="/home/reportsm.jsp">Reports</a> | 
-<a href="/home/profile.jsp">Profile</a> | <a href="/Logout">Logout</a>
+<div class="flex flex-row gap-2">
+    <a href="<%= request.getContextPath() %>/home/index.jsp" class="nav-link">Home</a>|
+    <a href="<%= request.getContextPath() %>/home/Garage" class="nav-link">Garage</a>|
+    <a href="<%= request.getContextPath() %>/home/Reports" class="nav-link">Reports</a>|
+    <a href="<%= request.getContextPath() %>/home/Profile" class="nav-link">Profile</a>|
+    <a href="<%= request.getContextPath() %>/Logout" class="nav-link">Logout</a>|
+</div>

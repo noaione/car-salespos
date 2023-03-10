@@ -1,5 +1,5 @@
 <%-- 
-    Document   : sales
+    Document   : sell
     Created on : Mar 9, 2023, 9:57:57 AM
     Author     : N4O
 --%>
@@ -22,7 +22,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Sales reports</title>
+        <title>Lent a car</title>
         <jsp:include page="/WEB-INF/tailwind.jsp" />
     </head>
     <body class="bg-gray-800 text-white mx-2 my-2">
@@ -48,7 +48,21 @@
             <%  }
             %>
             </nav>
-            <h1 class="text-center text-xl font-semibold mt-2">Your Rental Car Sales</h1>
+            <h1 class="text-center text-xl font-semibold mt-2">Lend a car?</h1>
         </div>
+        <form action="<%= request.getContextPath() + "/home/Lent" %>" method="POST" class="flex flex-col gap-1">
+            <div class="flex flex-col gap-1 align-middle justify-start">
+                <div class="flex"><label>Car Model</label></div>
+                <input type="text" name="name" class="form-input bg-gray-700 text-white rounded-md"  placeholder="Enter car model"  />
+            </div>
+            <div class="flex flex-col gap-1 align-middle justify-start">
+                <div class="flex"><label>Price (In RM)</label></div>
+                <input type="number" name="price" min="1" value="1" class="form-input bg-gray-700 text-white rounded-md"  placeholder="1" />
+            </div>
+            <div class="flex flex-col gap-1 align-middle justify-center mt-2">
+                <input type="hidden" name="sell-action" value="create-new">
+                <input type="submit" value="Lend it" class="px-2 py-2 rounded-md bg-emerald-500 text-white hover:bg-emerald-600 transition">
+            </div>
+        </form>
     </body>
 </html>

@@ -4,7 +4,18 @@
     Author     : N4O
 --%>
 
-<a href="index.jsp">Home</a> | <a href="Buy">Buy</a> | 
-<a href="Sell">Sell</a> | <a href="Purchases">Purchases</a> |
-<a href="Sales">Sales</a> | <a href="profile.jsp">Profile</a> |
-<a href="../Logout">Logout</a>
+<div class="flex flex-row gap-1">
+    <a href="<%= request.getContextPath() %>/home/index.jsp" class="nav-link">Home</a>
+    <span>|</span>
+    <a href="<%= request.getContextPath() %>/home/Rent" class="nav-link">Rent a Car</a>
+    <span>|</span>
+    <a href="<%= request.getContextPath() %>/home/Lent" class="nav-link">Lent a Car</a>
+    <span>|</span>
+    <a href="<%= request.getContextPath() %>/home/Rentals" class="nav-link">Rentals</a>
+    <span>|</span>
+    <a href="<%= request.getContextPath() %>/home/Sales" class="nav-link">Sales</a>
+    <span>|</span>
+    <a href="<%= request.getContextPath() %>/home/Profile" class="nav-link">Profile</a>
+    <span>|</span>
+    <a href="<%= request.getContextPath() %>/Logout" class="nav-link">Logout</a>
+</div>

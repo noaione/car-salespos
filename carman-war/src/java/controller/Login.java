@@ -28,6 +28,15 @@ public class Login extends HttpServlet {
 
     @EJB
     private UserFacade userFacade;
+    
+    private void makeError(PrintWriter out, String errText) {
+        // <div class="flex flex-col mx-auto items-center mt-2">
+        //     <p class="text-red-400">An error has occurred</p>
+        // </div>
+        out.println("<div class=\"flex flex-col mx-auto items-center mt-2\">");
+            out.println("<p class=\"text-red-400\">" + errText + "</p>");
+        out.println("</div>");
+    }
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -62,10 +71,10 @@ public class Login extends HttpServlet {
                 response.sendRedirect(request.getContextPath() + "/home/index.jsp");
             } catch (UserNotFoundError unfe) {
                 request.getRequestDispatcher("login.jsp").include(request, response);
-                out.println("<br><br><br>Sorry, the username provided cannot be found!");
+                makeError(out, "Sorry, the username provided cannot be found!");
             } catch (InvalidPasswordError e) {
                 request.getRequestDispatcher("login.jsp").include(request, response);
-                out.println("<br><br><br>Sorry, the password provided is invalid!");
+                makeError(out, "Sorry, the password provided is invalid!");
             }
         }
     }

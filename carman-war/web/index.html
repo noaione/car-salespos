@@ -5,11 +5,36 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
 -->
 <html>
     <head>
-        <title>TODO supply a title</title>
+        <title>Car Rental System</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+        <style type="text/tailwindcss">
+            @layer components {
+                .nav-link {
+                    @apply hover:underline hover:opacity-90 transition text-emerald-400;
+                }
+                .text-glow {
+                    text-shadow: 0 0 6px #fff;
+                }
+            }
+        </style>
     </head>
-    <body>
-        <div>TODO write content</div>
+    <body class="bg-gray-800 text-white mx-2 my-2">
+        <div class="flex flex-col mx-auto items-center">
+            <h1 class="mt-4 text-2xl font-light">Car Rental System</h1>
+            <br />
+            <div class="flex flex-col gap-1 justify-center text-center">
+                <div class="flex flex-row justify-center text-center">
+                    <a href="login.jsp" class="nav-link">[Login]</a>
+                </div>
+                <div class="flex flex-row gap-1 justify-center text-center">
+                    <a href="register.jsp" class="nav-link">[Register]</a>
+                    <span>|</span>
+                    <a href="registeradmin.jsp" class="nav-link">[Register Manager]</a>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

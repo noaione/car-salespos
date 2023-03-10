@@ -9,16 +9,16 @@
         <url-pattern>/home/*</url-pattern>
     </filter-mapping>
     <servlet>
-        <servlet-name>Buy</servlet-name>
-        <servlet-class>controller.Buy</servlet-class>
+        <servlet-name>Rent</servlet-name>
+        <servlet-class>controller.Rent</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>Sell</servlet-name>
-        <servlet-class>controller.Sell</servlet-class>
+        <servlet-name>Lent</servlet-name>
+        <servlet-class>controller.Lent</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>Purchases</servlet-name>
-        <servlet-class>controller.Purchases</servlet-class>
+        <servlet-name>Rentals</servlet-name>
+        <servlet-class>controller.Rentals</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>Sales</servlet-name>
@@ -36,18 +36,14 @@
         <servlet-name>Register</servlet-name>
         <servlet-class>controller.Register</servlet-class>
     </servlet>
-    <servlet-mapping>
-        <servlet-name>Buy</servlet-name>
-        <url-pattern>/home/Buy</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>Sell</servlet-name>
-        <url-pattern>/home/Sell</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>Purchases</servlet-name>
-        <url-pattern>/home/Purchases</url-pattern>
-    </servlet-mapping>
+    <servlet>
+        <servlet-name>Garage</servlet-name>
+        <servlet-class>controller.Garage</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>LentEdit</servlet-name>
+        <servlet-class>controller.LentEdit</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>Sales</servlet-name>
         <url-pattern>/home/Sales</url-pattern>
@@ -63,6 +59,26 @@
     <servlet-mapping>
         <servlet-name>Register</servlet-name>
         <url-pattern>/Register</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Rent</servlet-name>
+        <url-pattern>/home/Rent</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Lent</servlet-name>
+        <url-pattern>/home/Lent</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Rentals</servlet-name>
+        <url-pattern>/home/Rentals</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Garage</servlet-name>
+        <url-pattern>/home/Garage</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LentEdit</servlet-name>
+        <url-pattern>/home/Lent/Edit</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
