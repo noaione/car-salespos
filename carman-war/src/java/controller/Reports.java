@@ -29,8 +29,8 @@ import model.UserFacade;
  * @author N4O
  */
 
-@WebServlet(name = "Sales", urlPatterns = {"/home/Sales"})
-public class Sales extends HttpServlet {
+@WebServlet(name = "Reports", urlPatterns = {"/home/Reports"})
+public class Reports extends HttpServlet {
 
     @EJB
     private UserFacade userFacade;
@@ -56,56 +56,45 @@ public class Sales extends HttpServlet {
         if (userCtx == null) {
             response.sendRedirect(request.getContextPath() + "/login.jsp");
         } else {
-            if (userCtx.isManager()) {
+            if (userCtx.isUser()) {
                 System.out.println("redirecting...");
                 response.sendRedirect(request.getContextPath() + "/home/index.jsp");
                 return;
             }
             response.setContentType("text/html;charset=UTF-8");
             try (PrintWriter out = response.getWriter()) {
-                request.getRequestDispatcher("/home/sales.jsp").include(request, response);
-                List<CarSales> carSalesExist = carSalesFacade.findAllForSeller(userCtx);
-                if (carSalesExist.isEmpty()) {
-                    out.println("<p class=\"no-mod\">You haven't made any car listing yet!</p>");
-                    return;
-                }
-                List<SalesHistory> carSalesBooked = salesHistoryFacade.findAllForSeller(userCtx);
-                if (carSalesBooked.isEmpty()) {
-                    out.println("<p class=\"no-mod\">No one has rented your car listing yet!</p>");
-                    return;
-                }
+                request.getRequestDispatcher("/home/reports.jsp").include(request, response);
+                List<User> userDb = userFacade.findAll();
+                List<SalesHistory> salesHistory = salesHistoryFacade.findAll();
+                List<CarSales> carSales = carSalesFacade.findAll();
                 
+                HashMap<User, Long> totalUserSales = new HashMap<User, Long>();
+                HashMap<User, Integer> totalCars = new HashMap<User, Integer>();
                 long overallSales = 0L;
+                // the system assumes 10% commission price
                 double actualSales = 0d;
-                HashMap<CarModel, Integer> carUsages = new HashMap<CarModel, Integer>();
-                for (int i = 0; i < carSalesBooked.size(); i++) {
-                    SalesHistory carSale = carSalesBooked.get(i);
-                    int price = carSale.getCarSales().getCarModel().getPrice();
-                    overallSales += price;
-                    double commision = (double)price * 0.1;
-                    actualSales += (double)price - commision;
-                    CarModel car = carSale.getCarSales().getCarModel();
-                    if (carUsages.containsKey(car)) {
-                        carUsages.put(car, carUsages.get(car) + 1);
+                for (int i = 0; i < salesHistory.size(); i++) {
+                    CarSales carSale = salesHistory.get(i).getCarSales();
+                    User u = carSale.getSales();
+                    long price = (long)carSale.getCarModel().getPrice();
+                    if (totalUserSales.containsKey(u)) {
+                        totalUserSales.put(u, totalUserSales.get(u) + price);
                     } else {
-                        carUsages.put(car, 1);
+                        totalUserSales.put(u, price);
                     }
+                    System.out.println((double)price);
+                    double actPrice = (double)price * 0.1;
+                    System.out.println(actPrice);
+                    actualSales += actPrice;
+                    overallSales += price;
                 }
-                for (int i = 0; i < carSalesExist.size(); i++) {
-                    CarSales carSale = carSalesExist.get(i);
-                    CarModel car = carSale.getCarModel();
-                    if (!carUsages.containsKey(car)) {
-                        carUsages.put(car, 0);
-                    }
-                }
-                
-                int maxCarCount = 0;
-                CarModel mostFreqCar = null;
-                for (HashMap.Entry<CarModel, Integer> entry : carUsages.entrySet()) {
-                    int count = entry.getValue();
-                    if (count > maxCarCount) {
-                        maxCarCount = count;
-                        mostFreqCar = entry.getKey();
+                for (int i = 0; i < carSales.size(); i++) {
+                    CarSales carSale = carSales.get(i);
+                    User u = carSale.getSales();
+                    if (totalCars.containsKey(u)) {
+                        totalCars.put(u, totalCars.get(u) + 1);
+                    } else {
+                        totalCars.put(u, 1);
                     }
                 }
 
@@ -114,7 +103,8 @@ public class Sales extends HttpServlet {
                 String fmtActualSales = nf.format(actualSales);
                 
                 out.println("<div class\"flex flex-col gap-1\">");
-                    out.println("<h3 class=\"text-lg font-semibold\">Overall Sales</h3>");
+                    out.println("<h3 class=\"text-lg font-semibold\">Overall Reports</h3>");
+                    out.println("<p class=\"text-sm mb-2 font-light text-gray-100\">Actual sales is the 10% commission that the car rental takes</p>");
                     out.println("<div class=\"flex flex-row\">");
                         out.println("<p class=\"font-light\">");
                             out.println("<span class=\"font-bold\">Total gross sales:</span>&nbsp;RM&nbsp;" + fmtOverallSales);
@@ -125,30 +115,38 @@ public class Sales extends HttpServlet {
                             out.println("<span class=\"font-bold\">Total actual sales:</span>&nbsp;RM&nbsp;" + fmtActualSales);
                         out.println("</p>");
                     out.println("</div>");
-                    if (maxCarCount > 0) {
-                    out.println("<div class=\"flex flex-row\">");
-                        out.println("<p class=\"font-light\">");
-                        String usageForm = (maxCarCount > 1) ? "usages" : "usage";
-                            out.println("<span class=\"font-bold\">Most used car:</span>&nbsp;" + mostFreqCar.getName() + "&nbsp;<span class=\"font-bold\">(" + maxCarCount + " " + usageForm + ")</span>");
-                        out.println("</p>");
-                    out.println("</div>");
-                    }
                 out.println("</div>");
                 out.println("<div class\"flex flex-col gap-1\">");
                     out.println("<h3 class=\"text-lg font-semibold mt-4\">Individual Sales</h3>");
-                for (HashMap.Entry<CarModel, Integer> entry : carUsages.entrySet()) {
-                    int count = entry.getValue();
-                    int price = entry.getKey().getPrice();
-                    int totalCurrentSale = price * count;
-                    String fmtTotalCurrentSale = nf.format(totalCurrentSale);
-                    String usageForm = (count > 1) ? "usages" : "usage";
-
-                    out.println("<div class=\"flex flex-row\">");
-                        out.println("<p class=\"font-light before:content-['•_']\">");
-                            out.println("<span class=\"font-bold\">" + entry.getKey().getName() + "</span>:&nbsp;" + count + " " + usageForm + " (RM&nbsp;" + fmtTotalCurrentSale + ")");
-                        out.println("</p>");
-                    out.println("</div>");
+out.println("<hr class=\"border-gray-500 my-4\" />");
+                out.println("<table class=\"table-sales\">");
+                    out.println("<thead>");
+                        out.println("<tr>");
+                            out.println("<th class=\"table-h\">Username</th>");
+                            out.println("<th class=\"table-h\">Total Gross Sales</th>");
+                            out.println("<th class=\"table-h\">Total Actual Sales</th>");
+                            out.println("<th class=\"table-h\">Total Cars</th>");
+                        out.println("</tr>");
+                    out.println("</thead>");
+                    out.println("<tbody class=\"bg-slate-900\">");
+                for (int i = 0; i < userDb.size(); i++) {
+                    User cu = userDb.get(i);
+                    if (cu.isManager()) {
+                        continue;
+                    }
+                    int totalC = totalCars.getOrDefault(cu, 0);
+                    long totalSale = totalUserSales.getOrDefault(cu, 0L);
+                    double commision = (double)totalSale * 0.1;
+                    double actSale = totalSale - commision;
+                        out.println("<tr>");
+                            out.println("<td class=\"table-b\">" + cu.getUsername() + "</td>");
+                            out.println("<td class=\"table-b\">RM " + nf.format(totalSale) + "</td>");
+                            out.println("<td class=\"table-b\">RM " + nf.format(actSale) + "</td>");
+                            out.println("<td class=\"table-b\">" + nf.format(totalC) + "</td>");
+                        out.println("</tr>");
                 }
+                    out.println("</tbody>");
+                out.println("</table>");
                 out.println("</div>");
             }
         }
